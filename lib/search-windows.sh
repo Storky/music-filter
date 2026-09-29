@@ -13,8 +13,8 @@ search_windows() {
   local es_exe="$project_root/assets/apps/es.exe"
   local everything_exe="$project_root/assets/apps/everything.exe"
 
-  if [[ ! -f "$es_exe" ]]; then
-    echo "es.exe not found at: $es_exe" >&2
+  if [[ ! -f "$es_exe" || ! -f "$everything_exe" ]]; then
+    echo "Error: everything was not found." >&2
     return 1
   fi
 
