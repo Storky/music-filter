@@ -34,5 +34,10 @@ search_windows() {
     sleep 2
   fi
 
-  MSYS_NO_PATHCONV=1 "$es_exe" /ad -path "$root_win" "$name"
+  while IFS= read -r hit; do
+    [[ -z "$hit" ]] && continue
+    echo "SCAN $hit success"
+    echo "MATCH $hit"
+  done < <(MSYS_NO_PATHCONV=1 "$es_exe" /ad -path "$root_win" "$name")
 }
+

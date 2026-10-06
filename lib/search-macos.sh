@@ -10,11 +10,12 @@ search_macos() {
   echo "Searching in: $root" >&2
   echo >&2
 
-  find "$root" -maxdepth 2 -type d 2>/dev/null \
-    | while IFS= read -r dir; do
-        echo "  scanning: $dir" >&2
-        if [[ "$(basename "$dir")" == *"$name"* ]]; then
-          echo "$dir"
-        fi
-      done
+  while IFS= read -r dir; do
+    if [[ "$(basename "$dir")" == *"$name"* ]]; then
+      echo "SCAN $dir success"
+      echo "MATCH $dir"
+    else
+      echo "SCAN $dir null"
+    fi
+  done < <(find "$root" -maxdepth 2 -type d 2>/dev/null)
 }
