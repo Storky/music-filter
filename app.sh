@@ -2,8 +2,7 @@
 set -euo pipefail
 shopt -s nocasematch
 
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-PROJECT_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
+PROJECT_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 read -rp "Folder name to search: " name
 if [[ -z "$name" ]]; then
@@ -14,11 +13,11 @@ fi
 case "$(uname -s)" in
   Darwin)
     source "$PROJECT_ROOT/lib/search-macos.sh"
-    mapfile_cmd=search_macos
+    search_fn=search_macos
     ;;
   MINGW*|MSYS*|CYGWIN*)
     source "$PROJECT_ROOT/lib/search-windows.sh"
-    mapfile_cmd=search_windows
+    search_fn=search_windows
     ;;
   *)
     echo "Unsupported OS: $(uname -s)" >&2
@@ -26,11 +25,29 @@ case "$(uname -s)" in
     ;;
 esac
 
+source "$PROJECT_ROOT/lib/log.sh"
+# ...after case/uname block:
+log_init
+log_event "query:    $name"
+log_event ""
+
 matches=()
 while IFS= read -r line; do
-  [[ -z "$line" ]] && continue
-  matches+=("$line")
-done < <("$mapfile_cmd" "$name")
+  case "$line" in
+    "SCAN "*)
+      rest="${line#SCAN }"
+      path="${rest% *}"
+      result="${rest##* }"
+      log_scan "$path" "$result"
+      ;;
+    "MATCH "*)
+      matches+=("${line#MATCH }")
+      ;;
+    *)
+      echo "$line" >&2
+      ;;
+  esac
+done < <("$search_fn" "$name" 2>&1)
 
 echo
 if [[ ${#matches[@]} -eq 0 ]]; then
