@@ -4,6 +4,7 @@
 # Progress goes to stderr.
 
 search_macos() {
+  shopt -s nocasematch
   local name="$1"
   local root="$HOME/Documents"
 

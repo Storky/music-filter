@@ -1,5 +1,4 @@
 .idea/
-.logs/
 node_modules/
 .build/
 coverage/
@@ -13,4 +12,4 @@ tsconfig.tsbuildinfo
 !.yarn/sdks
 !.yarn/versions
 
-
+/logs/
