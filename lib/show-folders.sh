@@ -1,28 +1,41 @@
 #!/usr/bin/env bash
 # show-folders.sh
-# Public: show_folders [path...]
-#   If no args, reads paths from stdin (one per line).
-#   stdout: prints stored folders.
+# Public:
+#   set_folder <slot> <path>   — record a folder into a slot
+#   show_folders               — print all recorded slots
+# Slots: src1, filtered1, src2, filtered2
 
-SHOW_FOLDERS=()
+SLOT_SRC1=""
+SLOT_FILTERED1=""
+SLOT_SRC2=""
+SLOT_FILTERED2=""
+
+set_folder() {
+  local slot="$1"
+  local path="$2"
+
+  case "$slot" in
+    src1)      SLOT_SRC1="$path" ;;
+    filtered1) SLOT_FILTERED1="$path" ;;
+    src2)      SLOT_SRC2="$path" ;;
+    filtered2) SLOT_FILTERED2="$path" ;;
+    *)
+      echo "set_folder: unknown slot '$slot'" >&2
+      return 1
+      ;;
+  esac
+}
 
 show_folders() {
-  SHOW_FOLDERS=()
+  local any=0
 
-  if [[ $# -gt 0 ]]; then
-    SHOW_FOLDERS=("$@")
-  else
-    while IFS= read -r line; do
-      [[ -n "$line" ]] && SHOW_FOLDERS+=("$line")
-    done
-  fi
+  [[ -n "$SLOT_SRC1"      ]] && { echo "src1:      $SLOT_SRC1";      any=1; }
+  [[ -n "$SLOT_FILTERED1" ]] && { echo "filtered1: $SLOT_FILTERED1"; any=1; }
+  [[ -n "$SLOT_SRC2"      ]] && { echo "src2:      $SLOT_SRC2";      any=1; }
+  [[ -n "$SLOT_FILTERED2" ]] && { echo "filtered2: $SLOT_FILTERED2"; any=1; }
 
-  if [[ ${#SHOW_FOLDERS[@]} -eq 0 ]]; then
-    echo "No folders to show." >&2
+  if [[ $any -eq 0 ]]; then
+    echo "No folders recorded." >&2
     return 1
   fi
-
-  for f in "${SHOW_FOLDERS[@]}"; do
-    echo "$f"
-  done
 }
