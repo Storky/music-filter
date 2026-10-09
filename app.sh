@@ -14,7 +14,7 @@ log_init
 # folders_pick
 
 echo "Showing:"
-show_folders
+merge_devices
 
 out="$(folder_create_ui)" || true
 
