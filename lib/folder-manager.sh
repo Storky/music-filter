@@ -26,24 +26,13 @@ log_listing() {
   done < <(ls -1 "$dir" 2>/dev/null)
 }
 
-set_picked_folders() {
-  log_module_start "folder-manager.sh"
 
-  SLOT_SRC1="$(folder_pick_one "src1")"           || { log_module_end; return 1; }
-  SLOT_FILTERED1="$(folder_pick_one "filtered1")" || { log_module_end; return 1; }
-  SLOT_SRC2="$(folder_pick_one "src2")"           || { log_module_end; return 1; }
-  SLOT_FILTERED2="$(folder_pick_one "filtered2")" || { log_module_end; return 1; }
-
-  log_event "src1:      $SLOT_SRC1"
-  log_event "filtered1: $SLOT_FILTERED1"
-  log_event "src2:      $SLOT_SRC2"
-  log_event "filtered2: $SLOT_FILTERED2"
-
-  log_module_end
-}
 
 merge_devices() {
   log_module_start "folder-manager.sh"
+
+  echo "Picking result folder:"
+  set_result_folders || { log_module_end; return 1; }
 
   local any=0
 
@@ -58,6 +47,24 @@ merge_devices() {
     log_module_end
     return 1
   fi
+
+  filter_combine_filtered
+
+  log_module_end
+}
+
+set_picked_folders() {
+  log_module_start "folder-manager.sh"
+
+  SLOT_SRC1="$(folder_pick_one "src1")"           || { log_module_end; return 1; }
+  SLOT_FILTERED1="$(folder_pick_one "filtered1")" || { log_module_end; return 1; }
+  SLOT_SRC2="$(folder_pick_one "src2")"           || { log_module_end; return 1; }
+  SLOT_FILTERED2="$(folder_pick_one "filtered2")" || { log_module_end; return 1; }
+
+  log_event "src1:      $SLOT_SRC1"
+  log_event "filtered1: $SLOT_FILTERED1"
+  log_event "src2:      $SLOT_SRC2"
+  log_event "filtered2: $SLOT_FILTERED2"
 
   log_module_end
 }
@@ -75,4 +82,30 @@ set_result_folders() {
   log_event "MERGED_SOURCE:    $MERGED_SOURCE"
   log_event "MERGED_FILTERED:  $MERGED_FILTERED"
   log_event "ASSUMABLY_DELETED: $ASSUMABLY_DELETED"
+}
+
+filter_combine_filtered() {
+  if [[ -z "$MERGED_FILTERED" ]]; then
+    echo "filter_combine_filtered: MERGED_FILTERED not set" >&2
+    log_event "filter_combine_filtered: MERGED_FILTERED not set"
+    return 1
+  fi
+
+  mkdir -p "$MERGED_FILTERED"
+
+  local src
+  for src in "$SLOT_FILTERED1" "$SLOT_FILTERED2"; do
+    if [[ -z "$src" || ! -d "$src" ]]; then
+      log_event "skip (missing): $src"
+      continue
+    fi
+
+    log_event "merging: $src -> $MERGED_FILTERED"
+
+    local entry
+    while IFS= read -r entry; do
+      [[ -z "$entry" ]] && continue
+      cp -R "$src/$entry" "$MERGED_FILTERED/" && log_event "  copied: $entry"
+    done < <(ls -1 "$src" 2>/dev/null)
+  done
 }
