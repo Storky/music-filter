@@ -1,9 +1,5 @@
 #!/usr/bin/env bash
 # show-folders.sh
-# Public:
-#   set_folder <slot> <path>   — record a folder into a slot
-#   show_folders               — print all recorded slots
-# Slots: src1, filtered1, src2, filtered2
 
 SLOT_SRC1=""
 SLOT_FILTERED1=""
@@ -27,15 +23,21 @@ set_folder() {
 }
 
 show_folders() {
+  log_module_start "show-folders.sh"
+
   local any=0
 
-  [[ -n "$SLOT_SRC1"      ]] && { echo "src1:      $SLOT_SRC1";      any=1; }
-  [[ -n "$SLOT_FILTERED1" ]] && { echo "filtered1: $SLOT_FILTERED1"; any=1; }
-  [[ -n "$SLOT_SRC2"      ]] && { echo "src2:      $SLOT_SRC2";      any=1; }
-  [[ -n "$SLOT_FILTERED2" ]] && { echo "filtered2: $SLOT_FILTERED2"; any=1; }
+  [[ -n "$SLOT_SRC1"      ]] && { echo "src1:      $SLOT_SRC1";      log_event "src1:      $SLOT_SRC1";      any=1; }
+  [[ -n "$SLOT_FILTERED1" ]] && { echo "filtered1: $SLOT_FILTERED1"; log_event "filtered1: $SLOT_FILTERED1"; any=1; }
+  [[ -n "$SLOT_SRC2"      ]] && { echo "src2:      $SLOT_SRC2";      log_event "src2:      $SLOT_SRC2";      any=1; }
+  [[ -n "$SLOT_FILTERED2" ]] && { echo "filtered2: $SLOT_FILTERED2"; log_event "filtered2: $SLOT_FILTERED2"; any=1; }
 
   if [[ $any -eq 0 ]]; then
     echo "No folders recorded." >&2
+    log_event "(no folders recorded)"
+    log_module_end
     return 1
   fi
+
+  log_module_end
 }

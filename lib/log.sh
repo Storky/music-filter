@@ -2,21 +2,12 @@
 # lib/log.sh
 # Shared logger for app.sh.
 # Writes a per-run log file under $PROJECT_ROOT/logs/.
-#
-# Contract:
-#   log_init            — must be called once before any log_* call.
-#   log_line <msg>      — append one raw line to the log.
-#   log_scan <path> <result>  — append "SCAN <path> <result>".
-#   log_event <msg>     — append a plain event line (no prefix).
-#   log_summary         — append the trailing summary block.
-#
-# Assumes $PROJECT_ROOT is already set by the caller.
 
-# Internal state (set by log_init)
 LOG_FILE=""
 LOG_SCANNED=0
 LOG_MAX_DEPTH=0
 LOG_FOUND=()
+LOG_MODULE=""
 
 log_init() {
   if [[ -z "${PROJECT_ROOT:-}" ]]; then
@@ -31,16 +22,15 @@ log_init() {
   ts="$(date '+%a-%-d-%b_%H-%M-%S_%Y')"
   LOG_FILE="$dir/run-${ts}.log"
 
-  # header
   {
     echo "=== run $(date '+%a %-d %b, %H:%M:%S, %Y') ==="
     echo "os:       $(uname -s)"
   } >> "$LOG_FILE"
 
-  # reset accumulators
   LOG_SCANNED=0
   LOG_MAX_DEPTH=0
   LOG_FOUND=()
+  LOG_MODULE=""
 }
 
 log_line() {
@@ -52,8 +42,16 @@ log_event() {
   log_line "$*"
 }
 
-# log_scan <path> <result>
-# result is "null" or "success"
+log_module_start() {
+  LOG_MODULE="$1"
+  log_line ""
+  log_line "--- $LOG_MODULE ---"
+}
+
+log_module_end() {
+  LOG_MODULE=""
+}
+
 log_scan() {
   local path="$1"
   local result="$2"
@@ -67,8 +65,6 @@ log_scan() {
   log_line "$tag $path"
   LOG_SCANNED=$(( LOG_SCANNED + 1 ))
 
-
-  # track max depth relative to $HOME/Documents (best-effort)
   local root="${HOME}/Documents"
   local rel="${path#"$root"/}"
   if [[ "$rel" != "$path" ]]; then
@@ -91,7 +87,7 @@ log_summary() {
   for f in "${LOG_FOUND[@]}"; do
     log_line "  $f"
   done
-  log_line "=== end $(date '+%Y-%m-%d %H:%M:%S') ==="
+  log_line "=== end $(date '+%a %-d %b, %H:%M:%S, %Y') ==="
 }
 
 log_path() {
