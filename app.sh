@@ -7,6 +7,7 @@ source "$PROJECT_ROOT/lib/log.sh"
 source "$PROJECT_ROOT/lib/folder-manager.sh"
 #source "$PROJECT_ROOT/lib/folders-pick.sh"
 source "$PROJECT_ROOT/lib/folder-create.sh"
+source "$PROJECT_ROOT/lib/merger.sh"
 
 log_init
 
@@ -16,7 +17,7 @@ log_init
 echo "Showing:"
 merge_devices
 
-out="$(folder_create_ui)" || true
+# out="$(folder_create_ui)" || true
 
 echo
 echo "(log: $(log_path))"
