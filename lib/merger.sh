@@ -22,6 +22,8 @@ merge_devices() {
   fi
 
   filter_combine_filtered
+  filter_combine_source
+  filter_assume_deleted
 
   log_module_end
 }
