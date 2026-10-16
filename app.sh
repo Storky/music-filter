@@ -16,8 +16,3 @@ log_init
 
 echo "Showing:"
 merge_devices
-
-# out="$(folder_create_ui)" || true
-
-echo
-echo "(log: $(log_path))"

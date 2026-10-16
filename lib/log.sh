@@ -34,6 +34,7 @@ log_init() {
 }
 
 log_line() {
+  #todo transfer the check
   [[ -z "$LOG_FILE" ]] && return 0
   echo "$*" >> "$LOG_FILE"
 }
@@ -48,6 +49,7 @@ log_module_start() {
   log_line "--- $LOG_MODULE ---"
 }
 
+# todo resetting is unnecessary
 log_module_end() {
   LOG_MODULE=""
 }
@@ -78,6 +80,7 @@ log_scan() {
   fi
 }
 
+# todo used in mb depr func
 log_summary() {
   log_line ""
   log_line "--- summary ---"
@@ -88,8 +91,4 @@ log_summary() {
     log_line "  $f"
   done
   log_line "=== end $(date '+%a %-d %b, %H:%M:%S, %Y') ==="
-}
-
-log_path() {
-  echo "$LOG_FILE"
 }
