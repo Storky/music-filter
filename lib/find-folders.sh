@@ -6,6 +6,7 @@
 #   stderr: progress notes
 #   side effect: writes run log via lib/log.sh
 
+#todo probably depr
 find_folders() {
   local name="${1:-}"
 
